@@ -50,6 +50,29 @@ function Write-YACentered {
     Write-YA (" " * $pad + $Text) $Color
 }
 
+function Write-YAComposite {
+    param(
+        [Hashtable[]]$Parts
+    )
+
+    $totalLength = 0
+    foreach ($part in $Parts) {
+        $totalLength += $part.Text.Length
+    }
+
+    $width = Get-YAWidth
+    $pad = [Math]::Max(0, [Math]::Floor(($width - $totalLength) / 2))
+
+    Write-Host (" " * $pad) -NoNewline
+
+    foreach ($part in $Parts) {
+        $color = if ($part.Color) { $part.Color } else { "Gray" }
+        Write-Host $part.Text -ForegroundColor $color -NoNewline
+    }
+    Write-Host ""
+}
+
+
 function Write-YAAt {
     param(
         [int]$Left,
@@ -123,28 +146,36 @@ function Write-YAInfoCards {
 function Write-YAYogiArt {
     Write-Host ""
 
-    # top aura
-    Write-YACentered "           ◜────────◝" "Magenta"
-    Write-YACentered "             ◝────◜" "Magenta"
+    # Ganesha Art (Joan Stark classic)
+    $Ganesha = @(
+        @{ Text = '             _.!._'; Color = 'Yellow' }
+        @{ Text = '            /O*@*O\'; Color = 'Yellow' }
+        @{ Text = '           <\@(_)@/>'; Color = 'Magenta' }
+        @{ Text = '  ,;,   .--;`     `;--.   ,'; Color = 'Cyan' }
+        @{ Text = '  O@O_ /   |d     b|   \ _hnn'; Color = 'Cyan' }
+        @{ Text = '  | `/ \   |       |   / \` |'; Color = 'Green' }
+        @{ Text = '  &&&&  :##;\     /;##;  &&&&'; Color = 'Green' }
+        @{ Text = '  |  \ / `##/|   |##''  \ /  |'; Color = 'Green' }
+        @{ Text = '  \   %%%%`</|   |#''`%%%%   /'; Color = 'Green' }
+        @{ Text = '   ''._|_ \   |   |''  / _|_.'''; Color = 'Green' }
+        @{ Text = '     _/  /   \   \   \  \'; Color = 'Green' }
+        @{ Text = '    / (\(     ''.  ''-._&&&&'; Color = 'Cyan' }
+        @{ Text = '   (  ()##,    o''--.._`\-)&'; Color = 'Cyan' }
+        @{ Text = '   ''-():`##########''()()()'; Color = 'Yellow' }
+        @{ Text = '     /:::::/()`Y`()\:::::\'; Color = 'Magenta' }
+        @{ Text = '      \::::( () | () )::::/'; Color = 'Magenta' }
+        @{ Text = '      `"""`\().''.()/''"""``'; Color = 'Red' }
+    )
 
-    # head / consciousness loop
-    Write-YACentered "               𝝮" "Cyan"
+    $termWidth = Get-YAWidth
 
-    # upper body (flowing inward)
-    Write-YACentered "            ╭──┴──╮" "Cyan"
-    Write-YACentered "          ╭─╯     ╰─╮" "Green"
-
-    # heart center
-    Write-YACentered "         │    ♥     │" "Yellow"
-
-    # body expanding outward
-    Write-YACentered "          ╰─╮     ╭─╯" "Green"
-    Write-YACentered "            ╰──┬──╯" "Cyan"
-
-    # lotus base (infinity legs)
-    Write-YACentered "        ◜──────┴──────◝" "Yellow"
-    Write-YACentered "      ◜───────┼───────◝" "Red"
-    Write-YACentered "    ◜─────────┴─────────◝" "Red"
+    # Center Ganesha (max width 32)
+    $ganeshaWidth = 32
+    $ganeshaPad = [Math]::Max(0, [Math]::Floor(($termWidth - $ganeshaWidth) / 2))
+    $ganeshaPadStr = " " * $ganeshaPad
+    foreach ($line in $Ganesha) {
+        Write-Host ($ganeshaPadStr + $line.Text) -ForegroundColor $line.Color
+    }
 
     Write-Host ""
 }
@@ -179,7 +210,9 @@ function Write-YAPromptBar {
 
     $pad = " " * $leftPad
 
+    # Subtle elegant visual divider to cleanly separate command outputs when scrolling
     Write-Host ""
+    Write-YA ($pad + "─" * $promptWidth) $script:YA.Gray
 
     Write-YA $pad $script:YA.Gray -NoNewline
     Write-YA "╭─" $script:YA.Gray -NoNewline
